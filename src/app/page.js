@@ -13,6 +13,7 @@ export default function Home() {
 
   const postData = async () => {
     setLoading(true);
+    setError('');
     try {
       const response = await axios.post("/api/lighthouse", {
         url,
@@ -20,7 +21,6 @@ export default function Home() {
       });
       setUrl('');
       setEmulatedForm("mobile");
-      setError('');
       setArtifact(response.data.reportPath);
     } catch (error) {
       setArtifact('');
@@ -39,7 +39,6 @@ export default function Home() {
   return (
    
     <div className="flex flex-col items-center h-screen p-4">
-      {/* Header with H2 */}
       <div className="w-full mb-8">
         <h2 className="text-2xl font-bold text-center">Void Audit Tool</h2>
       </div>
@@ -76,6 +75,7 @@ export default function Home() {
           type="text"
           placeholder="https://www.void.fr/fr"
           className="border p-2 rounded-md text-black w-1/2"
+          required
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
