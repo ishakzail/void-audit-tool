@@ -14,7 +14,7 @@ export default function Home() {
   const postData = async () => {
     setLoading(true);
     try {
-      const response = await axios.post("/api/lighthouse", {
+      const response = await axios.post("void-audit-tool.vercel.app/api/lighthouse", {
         url,
         emulatedForm
       });
