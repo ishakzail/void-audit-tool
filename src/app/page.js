@@ -14,7 +14,7 @@ export default function Home() {
   const postData = async () => {
     setLoading(true);
     try {
-      const response = await axios.post("void-audit-tool.vercel.app/api/lighthouse", {
+      const response = await axios.post("/api/lighthouse", {
         url,
         emulatedForm
       });
@@ -86,12 +86,10 @@ export default function Home() {
           Start Audit
         </button>
       </div>
-
-      {/* Adjusted Error Display */}
       {error && (
-        <div className="bg-red-500 text-white px-4 py-2 rounded-md mb-4 w-1/5 text-center">
-          {error}
-        </div>
+          <div className="bg-red-500 text-white px-4 py-2 rounded-md mb-4 mx-auto max-w-full text-center break-words">
+            {error}
+          </div>
       )}
 
       {loading && (

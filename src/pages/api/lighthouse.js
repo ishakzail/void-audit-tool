@@ -22,7 +22,7 @@ export default async function handler(req, res)
         if (!urlExists)
         {
             console.log('url not found');
-            return res.status(400).json({ error: 'URL not found' });
+            return res.status(400).json({ error: `Unable to resolve ${isValidUrl}. Verify that the URL is valid.` });
         }
         const response = await lighthouseCheck({
             outputDirectory: './public/reports',
@@ -92,7 +92,8 @@ async function checkUrlExists(url) {
     return new Promise((resolve) => {
         const protocol = url.startsWith('https') ? https : http;
         const request = protocol.get(url, (response) => {
-            console.log('aji lhna');
+            console.log('statusCode == ', response.statusCode);
+            console.log('res ---', HttpStatusCodes.includes(response.statusCode));
             resolve(HttpStatusCodes.includes(response.statusCode));
         })
         request.on('error', () => {
