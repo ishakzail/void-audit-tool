@@ -14,6 +14,7 @@ export default function Home() {
   const postData = async () => {
     setLoading(true);
     setError('');
+    setArtifact('');
     try {
       const response = await axios.post("/api/lighthouse", {
         url,
@@ -21,6 +22,7 @@ export default function Home() {
       });
       setUrl('');
       setEmulatedForm("mobile");
+      console.log('path == ', response.data.reportPath);
       setArtifact(response.data.reportPath);
     } catch (error) {
       setArtifact('');
@@ -31,7 +33,7 @@ export default function Home() {
   };
 
   const handleCheckboxChange = (event) => {
-    console.log('event.target.checked == ', event.target.value);
+    // console.log('event.target.checked == ', event.target.value);
     const newValue = event.target.value;
     setEmulatedForm(newValue);
   };

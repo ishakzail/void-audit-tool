@@ -29,11 +29,13 @@ export default async function handler(req, res)
         });
 
         const localReportPath = response.data[0].localReport;
-        const reportWebPath = localReportPath.replace('/Users/mac/dev/void-audit-tool-4/public/', '');
-        
+        // for docker
+        const reportWebPath = localReportPath.replace('/app/public/', '');
+        // for local developement
+        // const reportWebPath = localReportPath.replace('/Users/mac/dev/void-audit-tool-4/public/', '');
         res.status(200).json({ reportPath: reportWebPath })
     } catch (error) {
-        console.log("error (catch) ----------- ", error.code);
+        // console.log("error (catch) ----------- ", error);
         res.status(500).json({ error: error })
     }
 }
