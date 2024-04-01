@@ -31,14 +31,19 @@ This repository consists of a custom Next.js tool designed to conduct website pe
    ```bash
    git clone https://github.com/ishakzail/void-audit-tool
    ```
-2. Navigate to the root directory, then build the image: 
+2. Add reports Folder
 
     ```bash
-    docker build -t image_name .
+    cd void-audit-tool && mkdir reports
+    ```
     
+3. Navigate to the root directory, then build the image: 
+
+    ```bash
+    docker build -t image_nam
     ```
 
-3. Run the container:  
+4. Run the container:  
     ```bash
     docker run -p port:port container_name 
     ```
@@ -47,9 +52,8 @@ This repository consists of a custom Next.js tool designed to conduct website pe
 1. Navigate to the browser and type: 
 
     ```bash
-    localhost:port/
+    localhost:port
     ```
 
 ## Overview
-
-https://www.loom.com/share/de35f1debbdc42dda607f71b7f483049
+* **https://www.loom.com/share/de35f1debbdc42dda607f71b7f483049**
