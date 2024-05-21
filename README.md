@@ -23,6 +23,7 @@ This repository consists of a custom Next.js tool designed to conduct website pe
 ### Prerequisites
 
 - docker
+- docker-compose
 
 ### Installation
 
@@ -31,28 +32,19 @@ This repository consists of a custom Next.js tool designed to conduct website pe
    ```bash
    git clone https://github.com/ishakzail/void-audit-tool
    ```
-2. Add reports Folder
-
-    ```bash
-    cd void-audit-tool && mkdir reports
-    ```
     
-3. Navigate to the root directory, then build the image: 
+2. Navigate to the root directory, then run: 
 
     ```bash
-    docker build -t image_nam
+    docker compose up --build
     ```
 
-4. Run the container:  
-    ```bash
-    docker run -p port:port container_name 
-    ```
 ## Usage
 
 1. Navigate to the browser and type: 
 
     ```bash
-    localhost:port
+    localhost:3000
     ```
 
 ## Overview
