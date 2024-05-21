@@ -11,6 +11,7 @@
   "dependencies": {
     "@foo-software/lighthouse-check": "^9.0.0",
     "axios": "^1.6.8",
+    "ioredis": "^5.4.1",
     "next": "14.1.4",
     "puppeteer": "^22.6.5",
     "react": "^18",

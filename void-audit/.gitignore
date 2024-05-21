@@ -6,8 +6,9 @@
 .pnp.js
 .yarn/install-state.gz
 
-# reports
+# reports and screenshots
 /public/reports
+/public/screenshots
 
 # testing
 /coverage

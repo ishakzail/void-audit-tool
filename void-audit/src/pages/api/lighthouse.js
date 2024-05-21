@@ -1,6 +1,13 @@
-import { lighthouseCheck } from "@foo-software/lighthouse-check";
+import { lighthouseCheck,  } from "@foo-software/lighthouse-check";
 import https from 'https';
 import http from 'http';
+import Redis from 'ioredis';
+
+
+const redis = new Redis({
+    host: process.env.REDIS_HOST, 
+    port: 6379
+  });
 
 /**
  * Handles the incoming request and performs a series of validations and checks on the URL.
@@ -17,16 +24,37 @@ export default async function handler(req, res)
         if (!isValidUrl || isValidUrl === undefined)
             return res.status(400).json({ error: 'Invalid URL' });
 
-        const urlExists = await checkUrlExists(isValidUrl);
+        // Check if report exists in Redis
+        const cachedReport = await redis.get(isValidUrl);
+        if (cachedReport) {
+            return res.status(200).json({ reportPath: cachedReport });
+        }
 
+        const urlExists = await checkUrlExists(isValidUrl);
         if (!urlExists)
             return res.status(400).json({ error: `Unable to resolve ${isValidUrl}. Verify that the URL is valid.` });
         
         // // Capture a screenshot of the website using Puppeteer
         // const screenshotPath = await captureScreenshot(isValidUrl);
 
+        /* TODO : Run lighthouse on both mobile and desktop (in background) 
+            I test it but it takes a lot of time
+        */
+        // const [desktopReport, mobileReport] = await Promise.all([
+        //     await lighthouseCheck({
+        //         outputDirectory: process.env.REPORT_PATH_DEV,
+        //         urls: [isValidUrl],
+        //         emulatedFormFactor: "desktop",
+        //     }),
+            // await lighthouseCheck({
+            //     outputDirectory: process.env.REPORT_PATH_DEV,
+            //     urls: [isValidUrl],
+            //     emulatedFormFactor: "mobile",
+            // })
+        // ]);
+
         const response = await lighthouseCheck({
-            outputDirectory: './public/reports',
+            outputDirectory: process.env.REPORT_PATH_DEV,
             urls: [isValidUrl],
             emulatedFormFactor: emulatedForm,
         });
@@ -35,7 +63,11 @@ export default async function handler(req, res)
         // for docker
         const reportWebPath = localReportPath.replace('/app/public/', '');
         // for local developement
-        // const reportWebPath = localReportPath.replace('/Users/mac/dev/void-audit-tool-4/public/', '');
+        // const reportWebPath = localReportPath.replace('/Users/mac/dev/void-audit-tool/public/', '');
+
+        // Store the report path in Redis with TTL 
+        await redis.set(isValidUrl, reportWebPath, 'EX', process.env.REDIS_CACHE_TIME * 60);
+
         res.status(200).json({ reportPath: reportWebPath })
     } catch (error) {
         res.status(500).json({ error: error })
