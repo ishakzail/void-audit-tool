@@ -4,14 +4,21 @@ import { useState } from "react";
 import { RotatingLines } from 'react-loader-spinner';
 import axios from "axios";
 
+
 export default function Home() {
   const [url, setUrl] = useState("");
   const [emulatedForm, setEmulatedForm] = useState("mobile");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [artifact, setArtifact] = useState("");
+  const [reportId, setReportId] = useState(0);
 
+  // Genrate a lighthouse report for the given URL
   const postData = async () => {
+    if (!url) {
+      setError("URL is required");
+      return;
+    }
     setLoading(true);
     setError('');
     setArtifact('');
@@ -19,11 +26,12 @@ export default function Home() {
       const response = await axios.post("/api/lighthouse", {
         url,
         emulatedForm
-      })
+      });
       setUrl('');
       setEmulatedForm("mobile");
-      // console.log('path == ', response.data.reportPath);
+      console.log('data == ', response.data);
       setArtifact(response.data.reportPath);
+      setReportId(response.data.reportId);
     } catch (error) {
       setArtifact('');
       setError(error.response.data.error);
@@ -38,58 +46,66 @@ export default function Home() {
     setEmulatedForm(newValue);
   };
 
+  // Share the report in email
+  const handleShareByEmail =  async () => {
+    if (!reportId) {
+      setError("No report available to share");
+      return;
+    }
+
+    try {
+        const response = await axios.post(`/api/share/${reportId}`);
+
+        const subject = `Audit Report for ${response.data.url}`;
+        const body = `Hello, \n\nI have generated a lighthouse report for the website ${response.data.url} using the void-audit-tool under a ${response.data.emulatedForm} device.\n\nPlease find the report attached. \n\n `;
+        const link = response.data.reportPath;
+        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}\n\nHere is the link : ${encodeURIComponent(link)}`;
+        
+        window.open(mailtoLink);
+    } catch (error) {
+        setError("Failed to fetch report content");
+        console.error(error);
+    }
+  };
+
+
   return (
    
     <div className="flex flex-col items-center h-screen p-4">
       <div className="w-full mb-8">
         <h2 className="text-2xl font-bold text-center">Void Audit Tool</h2>
       </div>
-
-      <div className="flex flex-row justify-center w-full mb-4">
-        <div className="flex items-center mr-4">
+      <div className="flex justify-center w-full">
+          <select
+              className="mr-2 bg-blue-200 rounded-md p-2 text-black "
+              value={emulatedForm}
+              onChange={handleCheckboxChange}
+            >
+              <option value="mobile">Mobile</option>
+              <option value="desktop">Desktop</option>
+          </select>
           <input
-            type="radio"
-            id="mobile"
-            name="formFactor"
-            value="mobile"
-            checked={emulatedForm === "mobile"}
-            onChange={handleCheckboxChange}
-            className="mr-2"
+            type="text"
+            placeholder="https://www.void.fr/fr"
+            className="border p-2 rounded-md text-black w-1/2 invalid:outline-2 invalid:outline-red-400"
+            required
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if(e.key == "Enter"){
+                postData()
+              }
+            }}
           />
-          <label htmlFor="mobile" className="text-sm text-black">Mobile</label>
-        </div>
-        <div className="flex items-center">
-          <input
-            type="radio"
-            id="desktop"
-            name="formFactor"
-            value="desktop"
-            checked={emulatedForm === "desktop"}
-            onChange={handleCheckboxChange}
-            className="mr-2"
-          />
-          <label htmlFor="desktop" className="text-sm text-black">Desktop</label>
-        </div>
-      </div>
-
-      <div className="flex justify-center w-full mb-4">
-        <input
-          type="text"
-          placeholder="https://www.void.fr/fr"
-          className="border p-2 rounded-md text-black w-1/2"
-          required
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md ml-4"
-          onClick={postData}
-        >
-          Start Audit
-        </button>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded-md ml-4"
+            onClick={postData}
+          >
+            Start Audit
+          </button>
       </div>
       {error && (
-          <div className="bg-red-500 text-white px-4 py-2 rounded-md mb-4 mx-auto max-w-full text-center break-words">
+          <div className="bg-red-500 text-white px-4 py-2 rounded-md my-4 mx-auto max-w-full text-center break-words">
             {error}
           </div>
       )}
@@ -110,8 +126,24 @@ export default function Home() {
         </div>
       )}
 
-      <div className="w-4/5 h-3/4 overflow-hidden mt-4 mx-auto">
-        {artifact && <iframe src={artifact} title="report-lighthouse" className="w-full h-full border-none" />}
+      <div className="w-4/5 h-3/4  mt-4 mx-auto">
+        {
+        artifact && 
+          <>
+            <div className="w-full h-full border-none">
+              <iframe src={artifact} title="report-lighthouse" className="w-full h-full border-none" />
+            </div>
+            <div className="flex justify-center">
+              <button 
+                className="bg-blue-500 text-white mt-4 px-4 py-2 rounded-md ml-4" 
+                onClick={handleShareByEmail}
+                >
+                Share
+              </button>
+            </div>
+          </>
+        }
+
       </div>
       
     </div>

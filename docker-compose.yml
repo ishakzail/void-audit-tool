@@ -1,20 +1,39 @@
-version: "3.8"
+
 services:
+  mariadb:
+    image: mariadb:10
+    container_name: mariadb
+    restart: on-failure
+    environment:
+      MARIADB_ROOT_PASSWORD: "1234"
+      # MARIADB_USER: "ishak"
+      MARIADB_DATABASE: "void-audit-db"
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - NET1
   client:
     container_name: client
     build:
       context: ./void-audit
-      # target: development
+      # target: production
     depends_on:
       - redis
+      - mariadb
     ports:
-      - "127.0.0.1:${FRONTEND_PORT}:${FRONTEND_PORT}"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+      - "5555:5555"
     networks:
       - NET1
     volumes:
       - ./void-audit:/app
       - /app/node_modules
       - reports_data:/app/public/reports
+      # - reports_data:/app/.next/static/reports
+      # - reports_data:/tmp/reports
+    # command: sh -c "cp -r /tmp/reports/* /app/.next/static/reports && npm run start
   redis:
     image: redis
     container_name: redis-cache
@@ -24,6 +43,7 @@ services:
       - NET1
 volumes:
   reports_data:
+  db_data:
 networks:
   NET1:
     driver: bridge
